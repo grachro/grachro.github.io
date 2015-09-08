@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>TsvToInsertSQL</title>
+<style type="text/css">
+h2 {
+	margin-bottom:0;
+}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script type="text/javascript">
+
+function clickTsvToInsertSql() {
+	
+	
+	var tableName = $('#tableName').val();
+	
+	var tsv = $('#tsvArea').val();
+	var lines = tsv.split("\n");
+
+	var insertCols = null;
+	var sqls = [];
+	for (i=0;i<lines.length;i++) {
+		var line = lines[i];
+		if (!line) {
+			continue;
+		}
+		
+		if (!insertCols) {
+			//TSV 1st line
+			insertCols = "INSERT INTO " + tableName + " (";
+			var headers = line.split("\t");
+			for (j=0;j<headers.length;j++) {
+				var col = headers[j];
+				if (j>0) {
+					insertCols += ",";
+				}
+				insertCols += col;
+			}
+			insertCols += ")";
+			continue;
+		}
+		
+		var sqlValues = " values (";
+		var values = line.split("\t");
+		for (j=0;j<values.length;j++) {
+			var val = values[j];
+			if (j>0) {
+				sqlValues += ",";
+			}
+			
+			if($.isNumeric(val)) {
+				sqlValues += val;
+			} else {
+				sqlValues += "'" + val + "'";
+			}
+			
+			
+		}
+		sqlValues += ");";
+		
+		
+		sqls.push(insertCols + sqlValues);
+	}
+
+	var result = "";
+	for (i=0;i<sqls.length;i++) {
+		var sql = sqls[i];
+		result += sql;
+		result += "\n";
+
+	}
+	$('#insertSqlArea').val(result);
+}
+$(function(){
+})
+</script>
+</head>
+<body>
+
+<h2>TABLE NAME</h2>
+<input type="text" id="tableName">
+<h2>TSV</h2>
+
+<textarea id="tsvArea" rows="10" cols="100"></textarea>
+<p>
+<input type="button" value="TSV to INSERT SQL" onclick="clickTsvToInsertSql()">
+</p>
+
+<h2>INSERT SQL</h2>
+<textarea id="insertSqlArea" rows="10" cols="100">
+</textarea>
+
+</body>
+</html>

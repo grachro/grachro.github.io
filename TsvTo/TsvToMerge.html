@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>TsvToInsertSQL</title>
+<style type="text/css">
+h2 {
+	margin-bottom:0;
+}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script type="text/javascript">
+
+function clickEditTsv() {
+	
+	
+	var tableName = $('#tableName').val();
+	
+	var tsv = $('#tsvArea').val();
+	var lines = tsv.split("\n");
+
+	var headers = null;
+	var groupNames = [];
+	var recoredNames = [];
+	var dataMap = {};
+	
+
+	//データパターン洗い出し
+	for (i=0;i<lines.length;i++) {
+		var line = lines[i];
+		if (!line) {
+			continue;
+		}
+		
+		if (!headers) {
+			//TSV 1st line
+			var headers = line.split("\t");
+			continue;
+		}
+
+		var values = line.split("\t");
+		
+		var groupName = values[0];
+		if ($.inArray(groupName, groupNames) == -1) {
+			groupNames.push(groupName);
+		}
+
+		var recoredName = values[1];
+		if ($.inArray(recoredName, recoredNames) == -1) {
+			recoredNames.push(recoredName);
+		}
+		
+		for (j=2;j<headers.length;j++) {
+			dataMap[groupName + "\t" + recoredName + "\t" + headers[j]] = values[j];
+		}
+
+	}
+
+	//表作成
+	var result = "";
+
+	//header1
+	result += "\t" ;
+	for (g=0;g<groupNames.length;g++) {
+		var groupName = groupNames[g];
+	
+		for (h=2;h<headers.length;h++) {
+			result += groupName
+			result += "\t";
+		}
+	}
+	result += "\n";
+
+	//header2
+	result += "\t" ;
+	for (g=0;g<groupNames.length;g++) {
+		for (h=2;h<headers.length;h++) {
+			result += headers[h]
+			result += "\t";
+		}
+	}
+	result += "\n";
+
+
+	//record
+	for (r=0;r<recoredNames.length;r++) {
+		var recoredName = recoredNames[r];
+		result += recoredName;
+
+		for (g=0;g<groupNames.length;g++) {
+			var groupName = groupNames[g];
+			
+			for (h=2;h<headers.length;h++) {
+				var header = headers[h]
+
+				var value = dataMap[groupName + "\t" + recoredName + "\t" +header];
+				if (value) {
+					result += "\t" + value
+				} else {
+					result += "\t"
+				}
+			}
+		}
+
+		result += "\n";
+	}
+
+
+ 
+
+	$('#outputArea').val(result);
+}
+
+$(function(){
+})
+</script>
+</head>
+<body>
+
+<h2>TSV</h2>
+
+<textarea id="tsvArea" rows="10" cols="100"></textarea>
+<p>
+<input type="button" value="edit TSV" onclick="clickEditTsv()">
+</p>
+
+<h2>INSERT SQL</h2>
+<textarea id="outputArea" rows="10" cols="100">
+</textarea>
+
+<pre>
+FG	FR	F1	F2	F3
+A	L1	D1	D2	D3
+A	L2	D4	D5	D6
+A	L3	D7	D8	D9
+B	L1	D10	D11	D12
+B	L2	D13	D14	D15
+C	L1	D16	D17	D18
+C	L3	D19	D20	D21
+D	L1	D22	D23	D24
+E	L2	D25	D26	D27
+E	L3	D28	D29	D30
+E	L4	D31	D32	D33
+</pre>
+↑これを　↓こう編集します
+<pre>
+	A	A	A	B	B	B	C	C	C	D	D	D	E	E	E	
+	F1	F2	F3	F1	F2	F3	F1	F2	F3	F1	F2	F3	F1	F2	F3	
+L1	D1	D2	D3	D10	D11	D12	D16	D17	D18	D22	D23	D24			
+L2	D4	D5	D6	D13	D14	D15							D25	D26	D27
+L3	D7	D8	D9				D19	D20	D21				D28	D29	D30
+L4													D31	D32	D33
+</pre>
+
+</body>
+</html>
