@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>TsvToJointString</title>
+<style type="text/css">
+h2 {
+	margin-bottom:0;
+}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<script type="text/javascript">
+
+function clickEditTsv() {
+	
+	
+	var separete = $('#separete').val();
+	var leftQuotation = $('#leftQuotation').val();
+	var rightQuotation = $('#rightQuotation').val();
+	var lineMax = parseInt($('#lineMax').val());
+
+	var tsv = $('#tsvArea').val();
+	var lines = tsv.split("\n");
+	var result = ""
+
+	//データパターン洗い出し
+	var cnt = 0;
+	for (i=0;i<lines.length;i++) {
+		var line = lines[i];
+		if (!line) {
+			continue;
+		}
+		
+		result += leftQuotation + line + rightQuotation
+
+		if (i < lines.length -1) {
+			result += separete
+		}
+
+		cnt ++
+		if (cnt >= lineMax) {
+			result += "\n"
+			cnt = 0
+		}
+	}
+
+
+	$('#outputArea').val(result);
+}
+
+$(function(){
+})
+</script>
+</head>
+<body>
+
+<h2>separete</h2>
+<input type="text" id="separete" value=",">
+
+<h2>left</h2>
+<input type="text" id="leftQuotation" value="'">
+
+<h2>right</h2>
+<input type="text" id="rightQuotation" value="'">
+
+
+<h2>line max</h2>
+<input type="text" id="lineMax" value="20">
+
+<h2>TSV</h2>
+<textarea id="tsvArea" rows="10" cols="100"></textarea>
+<p>
+<input type="button" value="edit TSV" onclick="clickEditTsv()">
+</p>
+
+<h2>INSERT SQL</h2>
+<textarea id="outputArea" rows="10" cols="100">
+</textarea>
+
+<pre>
+AA
+BB
+CC
+DD
+EE
+FF
+GG
+HH
+II
+JJ
+</pre>
+↑これを　↓こう編集します
+<pre>
+'AA','BB','CC','DD',
+'EE','FF','GG','HH',
+'II','JJ'
+</pre>
+
+</body>
+</html>
